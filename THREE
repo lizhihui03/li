@@ -1,0 +1,137 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<iostream>
+using namespace std;
+typedef struct HTnode {
+	float weight;
+	int parent;
+	int lchild;
+	int rchild;
+}HTnode,*HuffmanTree;
+void select(HuffmanTree ht, int n, int* s1, int* s2) {
+	int i;
+	float min1 = 100;
+	float min2 = 100;
+	*s1 = 0;
+	*s2 = 0;
+	for (i = 1; i <= n; i++) {//找到最小孩子
+		if (ht[i].parent == 0) {
+			if (ht[i].weight < min1) {
+				min1 = ht[i].weight;
+				*s1 = i;
+			}
+		}
+	}
+	for (i = 1; i <= n; i++) {//找到次小孩子
+		if (ht[i].parent == 0) {
+			if (ht[i].weight < min2&&ht[i].weight>min1) {
+				min2 = ht[i].weight;
+				*s2 = i;
+			}
+		}
+	}
+
+}
+void CreatHuffmanTree(HuffmanTree &ht, float w[], int n) {
+	int i;
+	int m = 2 * n + 1;//原来的和新建的结点总数
+	ht = new HTnode[m + 1];
+	for (int i = 1; i <= n; i++) {//1-n存入权值并初始化父母和孩子
+		ht[i].weight = w[i - 1];
+		ht[i].parent = 0;
+		ht[i].lchild = 0;
+		ht[i].rchild = 0;
+	}
+	
+	for (i = n + 1; i <= m; i++) {//n+1-m
+		ht[i].weight = 0;
+		ht[i].parent = 0;
+		ht[i].rchild = 0;
+		ht[i].lchild = 0;
+	}
+	//初始化完成，开始创造非叶结点
+	int s1, s2;
+	for (i = n + 1; i <= m; i++) {//构造哈夫曼树
+		select(ht, i - 1, &s1, &s2);
+		ht[i].weight = ht[s1].weight + ht[s2].weight;
+		ht[s1].parent = i;//有双亲
+		ht[s2].parent = i;//有双亲
+		ht[i].lchild = s1;//有左孩子
+		ht[i].rchild = s2;//有右孩子
+
+	}
+}
+void CreatHuffmancode(HuffmanTree ht, int n, char str[]) {
+	//注意逆向输出
+	char* cd;
+	cd = new char[n];
+	//cd = (char*)malloc(n * sizeof(char));//分配n个空间
+	for (int i = 1; i <= n; i++) {
+		int start = n - 1, c = i, p = ht[i].parent;
+		while (p != 0) {
+			start--;
+			if (ht[p].lchild == c) {
+				cd[start] = '0';
+			}
+			else {
+				cd[start] = '1';
+			}
+			c = p;
+			p = ht[p].parent;
+		}
+		printf("The %c's Huffman code is:", str[i - 1]);
+		for (int j = start+2; j < n; j++) {
+			if ((cd[j] == '0') || (cd[j] == '1')) {
+				printf("%c", cd[j]);
+			}
+			
+		}
+		printf("\n");
+	}
+}
+void show(HuffmanTree&Ht,int n) {
+	int i = 0;
+	int m = 2 * n - 1;
+	for (i = 1; i <= m; i++) {
+		printf("%g		%d		%d		%d\n", Ht[i].weight, Ht[i].parent, Ht[i].lchild, Ht[i].rchild);
+	}
+}
+int main() {
+	printf("欢迎使用哈夫曼编码程序，你可以输入你想要加密的信息，我将为你编码\n");
+	printf("编码请按1，退出请按0\n");
+	int o;
+	scanf("%d", &o);
+	if (o == 1) {
+		int n;
+		printf("请输入共多少结点:");
+		scanf("%d", &n);
+		char str[20];
+		//printf("\n");
+		printf("请依次输入个结点名称:");
+		for (int i = 0; i < n; i++) {
+			//scanf("%c", &str[i]);
+			cin >> str[i];
+		}
+		printf("请依次输入各结点权重:");
+		float w[20];
+		for (int i = 0; i < n; i++) {
+			cin >> w[i];
+			//scanf("%f", &w[i]);
+
+		}
+		HuffmanTree Ht = NULL;
+		CreatHuffmanTree(Ht, w, n);
+		printf("哈夫曼表格信息如下：\n");
+		printf("权值		双亲		左孩子		右孩子\n");
+		 show(Ht,n);
+		CreatHuffmancode(Ht, n, str);
+	}
+	else {
+		printf("再见！！！");
+	}
+	return 0;
+
+}
+/*哈夫曼树及哈夫曼编码实现*/
+
